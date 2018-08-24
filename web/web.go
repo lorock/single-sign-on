@@ -14,6 +14,9 @@ import (
 	"github.com/lorock/single-sign-on/utils"
 )
 
+var browsersNotSupported = "MSIE/8;MSIE/9;MSIE/10;Internet Explorer/8;Internet Explorer/9;Internet Explorer/10;Safari/7;Safari/8"
+
+// InitWeb InitWeb
 func InitWeb() {
 	l4g.Debug(utils.T("web.init.debug"))
 
@@ -44,8 +47,7 @@ func staticHandler(handler http.Handler) http.Handler {
 	})
 }
 
-var browsersNotSupported string = "MSIE/8;MSIE/9;MSIE/10;Internet Explorer/8;Internet Explorer/9;Internet Explorer/10;Safari/7;Safari/8"
-
+// CheckBrowserCompatability CheckBrowserCompatability
 func CheckBrowserCompatability(c *api.Context, r *http.Request) bool {
 	ua := user_agent.New(r.UserAgent())
 	bname, bversion := ua.Browser()

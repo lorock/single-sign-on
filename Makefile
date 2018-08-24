@@ -12,9 +12,9 @@ DIST_PATH=$(DIST_ROOT)/single-sign-on
 
 GO=go
 GO_LINKER_FLAGS ?= -ldflags \
-				   "-X github.com/KenmyZhang/single-sign-on/model.BuildNumber=$(BUILD_NUMBER)\
-				    -X 'github.com/KenmyZhang/single-sign-on/model.BuildDate=$(BUILD_DATE)'\
-				    -X github.com/KenmyZhang/single-sign-on/model.BuildHash=$(BUILD_HASH)"
+				   "-X github.com/lorock/single-sign-on/model.BuildNumber=$(BUILD_NUMBER)\
+				    -X 'github.com/lorock/single-sign-on/model.BuildDate=$(BUILD_DATE)'\
+				    -X github.com/lorock/single-sign-on/model.BuildHash=$(BUILD_HASH)"
 
 build-linux:
 	@echo Build Linux amd64
