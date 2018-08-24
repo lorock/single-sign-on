@@ -1,5 +1,38 @@
 # single-sign-on
 
+温馨提示：程序运行起来后，会判断是否存在数据表，如果不存在会自动创建，无需另外另外执行sql脚本来创建数据表(因比较多人找我要sql脚本，所以在这里提醒一下，我这没有sql脚本)
+
+## 安装数据库（基于ubuntu）
+* 利用apt-get install安装MySQl
+ 
+    sudo apt-get install mysql-server
+
+* 以root用户登录MySQL
+  
+  mysql -u root -p
+
+* 创建sso用户'ssouser'
+  
+  mysql> create user 'ssouser'@'%' identified by 'ssouser-password'; 
+   其中%表示网上的所有机器都可以连接上，使用具体的IP地址更安全点
+  mysql> create user 'ssouser'@'10.10.10.2' identified by 'ssouser-password';
+
+
+* 创建sso数据库
+
+  mysql> create database sso
+
+
+* 允许ssouser用户的访问权限
+
+  mysql> grant all privileges on sso.* to 'ssouser'@'%';
+
+
+* 退出MySQL
+
+  mysql> exit
+
+
 ## 编译
   make build
 
