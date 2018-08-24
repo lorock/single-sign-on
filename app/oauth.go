@@ -3,7 +3,6 @@ package app
 import (
 	"bytes"
 	b64 "encoding/base64"
-	"github.com/disintegration/imaging"
 	"image/jpeg"
 	"io"
 	"io/ioutil"
@@ -13,10 +12,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/KenmyZhang/single-sign-on/einterfaces"
-	"github.com/KenmyZhang/single-sign-on/model"
-	"github.com/KenmyZhang/single-sign-on/utils"
-	"github.com/KenmyZhang/single-sign-on/sqlStore"
+	"github.com/disintegration/imaging"
+
+	"github.com/lorock/single-sign-on/einterfaces"
+	"github.com/lorock/single-sign-on/model"
+	"github.com/lorock/single-sign-on/sqlStore"
+	"github.com/lorock/single-sign-on/utils"
 )
 
 const (
@@ -94,7 +95,7 @@ func generateOAuthStateTokenExtra(action, cookie string) string {
 	return action + ":" + cookie
 }
 
-func AuthorizeOAuthUser(w http.ResponseWriter, r *http.Request, service, code, state, redirectUri string) (string , io.ReadCloser, *model.AppError) {
+func AuthorizeOAuthUser(w http.ResponseWriter, r *http.Request, service, code, state, redirectUri string) (string, io.ReadCloser, *model.AppError) {
 	sso := utils.Cfg.GetSSOService(service)
 	if sso == nil || !sso.Enable {
 		return "", nil, model.NewAppError("AuthorizeOAuthUser", "api.oauth.authorize_oauth_user.unsupported.app_error", nil, "service="+service, http.StatusNotImplemented)
@@ -316,7 +317,7 @@ func SetOAuthProfileImage(user *model.User) *model.AppError {
 	}
 
 	path := "users/" + user.Id + "/profile.png"
-	if err := writeFileLocally(buf.Bytes(), *utils.Cfg.FileSettings.Directory + path); err != nil {
+	if err := writeFileLocally(buf.Bytes(), *utils.Cfg.FileSettings.Directory+path); err != nil {
 		return err
 	}
 
@@ -353,13 +354,13 @@ func SignupWithOauth(w http.ResponseWriter, r *http.Request, service, state, log
 		return nil, model.NewAppError("SignupWithOauth", "api.user.signup_with_oauth.invalid_token_extra.app_error", nil, "", http.StatusBadRequest)
 	}
 	propsForToken := expectedToken.Props
-	user :=  &model.User{}
+	user := &model.User{}
 
-	user.Username    = propsForToken["username"].(string)
+	user.Username = propsForToken["username"].(string)
 	user.AuthService = propsForToken["authService"].(string)
-	user.Nickname    = propsForToken["nickname"].(string)
-	user.HeadImgUrl  = propsForToken["headImgUrl"].(string)
-	authData        := propsForToken["authData"].(string)
+	user.Nickname = propsForToken["nickname"].(string)
+	user.HeadImgUrl = propsForToken["headImgUrl"].(string)
+	authData := propsForToken["authData"].(string)
 	if authData != "" {
 		user.AuthData = &authData
 	}
@@ -415,11 +416,11 @@ func SetCookieAndToken(w http.ResponseWriter, r *http.Request, user *model.User)
 
 	tokenExtra := generateOAuthStateTokenExtra(model.OAUTH_ACTION_SIGNUP, cookieValue)
 	propsForToken := model.StringInterface{}
-	propsForToken["username"]    = user.Username
-	propsForToken["authData"]    = *(user.AuthData) 
-	propsForToken["authService"] = user.AuthService  
-	propsForToken["nickname"]    = user.Nickname     
-	propsForToken["headImgUrl"]  = user.HeadImgUrl  
+	propsForToken["username"] = user.Username
+	propsForToken["authData"] = *(user.AuthData)
+	propsForToken["authService"] = user.AuthService
+	propsForToken["nickname"] = user.Nickname
+	propsForToken["headImgUrl"] = user.HeadImgUrl
 
 	stateToken, err := CreateOAuthStateToken(tokenExtra, propsForToken)
 	if err != nil {
@@ -451,7 +452,7 @@ func CompleteOAuthMobile(service string, userData io.ReadCloser, props map[strin
 
 	if len(authData) == 0 {
 		return nil, model.NewAppError("CompleteOAuthMobile", "api.user.complete_oauth_mobile.parse.app_error",
-			map[string]interface{}{"Service": service}, 
+			map[string]interface{}{"Service": service},
 			"invalid credential, access_token is invalid or not latest", http.StatusBadRequest)
 	}
 
@@ -494,6 +495,6 @@ func CreateOAuthMobileUser(service string, userData io.Reader) (*model.User, *mo
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return ruser, nil
 }

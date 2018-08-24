@@ -1,11 +1,12 @@
 package api
 
 import (
-	"github.com/KenmyZhang/single-sign-on/app"
-	"github.com/KenmyZhang/single-sign-on/model"
-	"github.com/KenmyZhang/single-sign-on/utils"
 	"net/http"
 	"strings"
+
+	"github.com/lorock/single-sign-on/app"
+	"github.com/lorock/single-sign-on/model"
+	"github.com/lorock/single-sign-on/utils"
 )
 
 func InitOauth() {
@@ -117,26 +118,26 @@ func completeOAuthMobile(c *Context, w http.ResponseWriter, r *http.Request) {
 	props := model.MapFromJson(r.Body)
 	if len(props["access_token"]) > 120 {
 		c.SetInvalidParam("access_token")
-		return		
+		return
 	}
 
 	if len(props["open_id"]) > 120 {
 		c.SetInvalidParam("open_id")
-		return		
-	}		
+		return
+	}
 
 	accessToken := props["access_token"]
 	openId := props["open_id"]
 
 	sso := utils.Cfg.GetSSOService(model.SERVICE_WEIXIN)
 	if sso == nil {
-		err := model.NewLocAppError("completeOAuthMobile", "api.user.authorize_oauth_user.unsupported.app_error", nil, "service=" + model.SERVICE_WEIXIN)
+		err := model.NewLocAppError("completeOAuthMobile", "api.user.authorize_oauth_user.unsupported.app_error", nil, "service="+model.SERVICE_WEIXIN)
 		c.Err = err
 		return
 	}
 
-    userApiEndpoint := sso.UserApiEndpoint + "?access_token=" + accessToken + "&openid=" + openId
-    req, _ := http.NewRequest("GET", userApiEndpoint, strings.NewReader(""))
+	userApiEndpoint := sso.UserApiEndpoint + "?access_token=" + accessToken + "&openid=" + openId
+	req, _ := http.NewRequest("GET", userApiEndpoint, strings.NewReader(""))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Authorization", "Bearer "+accessToken)
@@ -147,7 +148,7 @@ func completeOAuthMobile(c *Context, w http.ResponseWriter, r *http.Request) {
 		err := model.NewLocAppError("completeOAuthMobile", "api.oauth.complete_oauth_mobile.request.app_error",
 			map[string]interface{}{"Service": model.SERVICE_WEIXIN}, userApiErr.Error())
 		c.Err = err
-		return		
+		return
 	}
 
 	user, err := app.CompleteOAuthMobile(model.SERVICE_WEIXIN, resp.Body, props)
@@ -155,22 +156,21 @@ func completeOAuthMobile(c *Context, w http.ResponseWriter, r *http.Request) {
 		c.Err = err
 		return
 	}
-	
+
 	err = app.DoLogin(w, r, user, "")
 	if err != nil {
 		c.Err = err
 		return
 	}
-	       
-	if user != nil && user.HeadImgUrl != "" {
-        if err := app.SetOAuthProfileImage(user); err != nil {
-            c.Err = err
-            return
-        }
-    }
 
+	if user != nil && user.HeadImgUrl != "" {
+		if err := app.SetOAuthProfileImage(user); err != nil {
+			c.Err = err
+			return
+		}
+	}
 
 	user.Sanitize(map[string]bool{})
-	w.Write([]byte(user.ToJson()))	
+	w.Write([]byte(user.ToJson()))
 	return
 }

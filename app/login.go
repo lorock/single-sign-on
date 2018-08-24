@@ -8,8 +8,8 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/mssola/user_agent"
 
-	"github.com/KenmyZhang/single-sign-on/model"
-	"github.com/KenmyZhang/single-sign-on/utils"
+	"github.com/lorock/single-sign-on/model"
+	"github.com/lorock/single-sign-on/utils"
 )
 
 func AuthenticateUserForLogin(id, loginId, password string) (*model.User, *model.AppError) {

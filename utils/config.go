@@ -15,7 +15,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 
-	"github.com/KenmyZhang/single-sign-on/model"
+	"github.com/lorock/single-sign-on/model"
 )
 
 const (

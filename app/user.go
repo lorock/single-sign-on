@@ -1,28 +1,30 @@
 package app
 
 import (
-	"net/http"
-	"strings"
-	"strconv"
-	"math/rand"
-	"time"
+	"bytes"
 	"crypto/md5"
 	"hash/fnv"
 	"image"
 	"image/color"
 	"image/draw"
-	"io/ioutil"
-	"mime/multipart"
-	"github.com/golang/freetype"
 	"image/png"
-	"bytes"
-	//b64 "encoding/base64"
-	"encoding/hex"	
-	"github.com/disintegration/imaging"
-	l4g "github.com/alecthomas/log4go"
+	"io/ioutil"
+	"math/rand"
+	"mime/multipart"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
 
-	"github.com/KenmyZhang/single-sign-on/model"
-	"github.com/KenmyZhang/single-sign-on/utils"
+	"github.com/golang/freetype"
+	//b64 "encoding/base64"
+	"encoding/hex"
+
+	l4g "github.com/alecthomas/log4go"
+	"github.com/disintegration/imaging"
+
+	"github.com/lorock/single-sign-on/model"
+	"github.com/lorock/single-sign-on/utils"
 )
 
 const (
@@ -33,7 +35,7 @@ const (
 	VERIFY_EMAIL_EXPIRY_TIME      = 1000 * 60 * 60 // 1 hour
 	IMAGE_PROFILE_PIXEL_DIMENSION = 128
 	SMS_COOKIE_MAX_AGE_SECONDS    = 30 * 60 // 30 minutes
-	VERIFICATION_CODE                      = "verified_code"	
+	VERIFICATION_CODE             = "verified_code"
 	COOKIE_SMS_TOKEN              = "verified_token"
 )
 
@@ -108,9 +110,9 @@ func makeVerificationCode() (code string) {
 }
 
 func GetMd5String(s string) string {
-    md := md5.New()
-    md.Write([]byte(s))
-    return hex.EncodeToString(md.Sum(nil))
+	md := md5.New()
+	md.Write([]byte(s))
+	return hex.EncodeToString(md.Sum(nil))
 }
 
 func GetUser(userId string) (*model.User, *model.AppError) {
@@ -181,34 +183,34 @@ func SendSmsCode(mobile string, w http.ResponseWriter, r *http.Request) *model.A
 	sso := utils.Cfg.GetSmsService()
 	if sso != nil && !sso.Enable {
 		return model.NewAppError("SendSmsCode", "api.user.send_sms_code.unsupported.app_error", nil, "Sms disabled  or not support", http.StatusNotImplemented)
-	}  
+	}
 
 	var tokenStr string
 	if token, err := GetTokenByExtra(mobile); err == nil {
 		if token.CreateAt > (model.GetMillis() - model.MAX_SMS_TOKEN_EXIPRY_TIME) {
-			return model.NewAppError("SendSmsCode", "api.user.send_sms_code.less_than_60.app_error", nil, 
-				"you should wait more than 60s,now time" + strconv.FormatInt(model.GetMillis(), 10) + "; create time:" + strconv.FormatInt(token.CreateAt, 10), http.StatusBadRequest)
+			return model.NewAppError("SendSmsCode", "api.user.send_sms_code.less_than_60.app_error", nil,
+				"you should wait more than 60s,now time"+strconv.FormatInt(model.GetMillis(), 10)+"; create time:"+strconv.FormatInt(token.CreateAt, 10), http.StatusBadRequest)
 		}
 	}
 
 	if count, err := GetTokenCountByExtra(mobile); err == nil {
 		if count > model.SEND_CODE_MAX {
-			return model.NewAppError("SendSmsCode", "api.user.send_sms_code.get_token_count_by_count.app_error", nil, "you send more than " + strconv.Itoa(model.SEND_CODE_MAX), http.StatusBadRequest)
+			return model.NewAppError("SendSmsCode", "api.user.send_sms_code.get_token_count_by_count.app_error", nil, "you send more than "+strconv.Itoa(model.SEND_CODE_MAX), http.StatusBadRequest)
 		}
 	}
 
-    verificationCode := makeVerificationCode()
+	verificationCode := makeVerificationCode()
 	if sso.Provider == "aliyun" {
-    	//阿里云-云通信		
+		//阿里云-云通信
 		templateParam := `{"code":"` + verificationCode + `"}`
- 		smsClient := NewALiYunSmsClient(sso.GatewayUrl)
- 		if err := smsClient.Execute(sso.AccessKeyId, sso.AccessKeySecret, mobile, sso.SignName, 
- 			sso.TemplateCode, templateParam); err != nil {
- 			return model.NewLocAppError("SendSmsCode", "api.user.send_sms_code.aliyun_execute.app_error", nil, "smsClient.Execute() err:" + err.Error())
- 		}
-	} else { 
-    	verificationCode = "666666"
-    }
+		smsClient := NewALiYunSmsClient(sso.GatewayUrl)
+		if err := smsClient.Execute(sso.AccessKeyId, sso.AccessKeySecret, mobile, sso.SignName,
+			sso.TemplateCode, templateParam); err != nil {
+			return model.NewLocAppError("SendSmsCode", "api.user.send_sms_code.aliyun_execute.app_error", nil, "smsClient.Execute() err:"+err.Error())
+		}
+	} else {
+		verificationCode = "666666"
+	}
 	secure := false
 	if GetProtocol(r) == "https" {
 		secure = true
@@ -217,10 +219,10 @@ func SendSmsCode(mobile string, w http.ResponseWriter, r *http.Request) *model.A
 	expiresAt := time.Unix(model.GetMillis()/1000+int64(60), 0)
 
 	if token, err := CreateVerifyCodeToken(mobile, verificationCode); err != nil {
-		return model.NewAppError("SendSmsCode", "api.user.send_sms_code.create_token.app_error", nil, "create token error" + err.Error(), http.StatusBadRequest)
+		return model.NewAppError("SendSmsCode", "api.user.send_sms_code.create_token.app_error", nil, "create token error"+err.Error(), http.StatusBadRequest)
 	} else {
 		tokenStr = token.Token
-	}	
+	}
 
 	tokenCookie := &http.Cookie{
 		Name:     COOKIE_SMS_TOKEN,
@@ -248,7 +250,7 @@ func CreateVerifyCodeToken(mobile, verifiedCode string) (*model.Token, *model.Ap
 	return token, nil
 }
 
-func CreateUserFromEmailOrMobile(user *model.User) (*model.User, *model.AppError) {	
+func CreateUserFromEmailOrMobile(user *model.User) (*model.User, *model.AppError) {
 	user.EmailVerified = false
 
 	ruser, err := CreateUser(user)
@@ -274,7 +276,7 @@ func SendEmailVerificationCode(email string) *model.AppError {
 	}
 
 	if _, err := CreateVerifyCodeToken(email, verificationCode); err != nil {
-		return model.NewAppError("SendEmailVerificationCode", "api.user.send_email_verification_code.create_token.app_error", nil, "create token error" + err.Error(), http.StatusBadRequest)
+		return model.NewAppError("SendEmailVerificationCode", "api.user.send_email_verification_code.create_token.app_error", nil, "create token error"+err.Error(), http.StatusBadRequest)
 	}
 
 	if utils.Cfg.LocalizationSettings.AvailableLocales != nil && *utils.Cfg.LocalizationSettings.AvailableLocales != "" {
@@ -350,42 +352,42 @@ func IsDoctor(userId string) bool {
 	return false
 }
 
-func VerifiedCode(r *http.Request, email, mobile, verificationCode string) *model.AppError{
-    var err *model.AppError
-    var token *model.Token
-    var extra, extraInToken, verificationCodeInToken string
+func VerifiedCode(r *http.Request, email, mobile, verificationCode string) *model.AppError {
+	var err *model.AppError
+	var token *model.Token
+	var extra, extraInToken, verificationCodeInToken string
 
 	if email == "" {
 		extra = mobile
-    } else {
-    	extra = email
-    }
+	} else {
+		extra = email
+	}
 
 	if token, err = GetTokenByExtra(extra); err != nil {
 		return model.NewLocAppError("VerifiedCode", "api.user.verified_code.get_token.app_error", nil, err.Error())
-    }    
+	}
 
-    expireTime := model.GetMillis() - model.MAX_SMS_TOKEN_EXIPRY_TIME
-    if token.CreateAt < expireTime {
-    	return model.NewLocAppError("VerifiedCode", "api.user.verified_code.expire.app_error", nil, "verified code expire")
-    }
-    
-    extraInToken = token.Extra
-    if value, ok := token.Props[VERIFICATION_CODE]; ok {
-    	verificationCodeInToken = value.(string)
-    }     	
+	expireTime := model.GetMillis() - model.MAX_SMS_TOKEN_EXIPRY_TIME
+	if token.CreateAt < expireTime {
+		return model.NewLocAppError("VerifiedCode", "api.user.verified_code.expire.app_error", nil, "verified code expire")
+	}
 
-    if extraInToken != extra {
-    	return model.NewLocAppError("VerifiedCode", "api.user.verified_code.extra.app_error", nil, 
-    		"extra in token is " + extraInToken + ", while input extra is " + extra)
-    }
+	extraInToken = token.Extra
+	if value, ok := token.Props[VERIFICATION_CODE]; ok {
+		verificationCodeInToken = value.(string)
+	}
 
-    if verificationCodeInToken != verificationCode {
-    	return model.NewLocAppError("VerifiedCode", "api.user.verified_code.verification_code.app_error", nil, 
-    		"verification_code error:" + verificationCode)
-    }
+	if extraInToken != extra {
+		return model.NewLocAppError("VerifiedCode", "api.user.verified_code.extra.app_error", nil,
+			"extra in token is "+extraInToken+", while input extra is "+extra)
+	}
 
-    return nil
+	if verificationCodeInToken != verificationCode {
+		return model.NewLocAppError("VerifiedCode", "api.user.verified_code.verification_code.app_error", nil,
+			"verification_code error:"+verificationCode)
+	}
+
+	return nil
 }
 
 func GetProfileImage(user *model.User) ([]byte, bool, *model.AppError) {
@@ -408,7 +410,7 @@ func GetProfileImage(user *model.User) ([]byte, bool, *model.AppError) {
 		}
 
 	} else {
-			img = data
+		img = data
 	}
 
 	return img, readFailed, nil
@@ -524,7 +526,7 @@ func SetProfileImage(w http.ResponseWriter, userId string, imageData *multipart.
 
 	path := "users/" + userId + "/profile.png"
 
-	if err := writeFileLocally(buf.Bytes(), *utils.Cfg.FileSettings.Directory + path); err != nil {
+	if err := writeFileLocally(buf.Bytes(), *utils.Cfg.FileSettings.Directory+path); err != nil {
 		return model.NewLocAppError("SetProfileImage", "api.user.upload_profile_user.upload_profile.app_error", nil, "")
 	}
 

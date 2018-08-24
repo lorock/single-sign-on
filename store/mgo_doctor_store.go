@@ -3,7 +3,7 @@ package store
 import (
 	"net/http"
 
-	"github.com/KenmyZhang/single-sign-on/model"
+	"github.com/lorock/single-sign-on/model"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -94,10 +94,10 @@ func (s MgoDoctorStore) SearchDoctors(term string, offset, limit int) StoreChann
 		result := StoreResult{}
 		doctors := &[]model.Doctor{}
 		query := bson.M{"name": bson.M{
-				"$regex":   "^" + term,
-				"$options": "i",
-				},
-			}
+			"$regex":   "^" + term,
+			"$options": "i",
+		},
+		}
 
 		if err := DoctorC(ms).Find(query).Sort("createAt").Skip(offset).Limit(limit).All(doctors); err != nil {
 			result.Err = model.NewLocAppError("MgoDoctorStore.SearchDoctors",

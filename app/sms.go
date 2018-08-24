@@ -1,17 +1,18 @@
 package app
 
 import (
-	l4g "github.com/alecthomas/log4go"
-	"github.com/KenmyZhang/single-sign-on/model"	
-	"net/http"
-	"io/ioutil"
 	"encoding/json"
+	"io/ioutil"
+	"net/http"
+
+	l4g "github.com/alecthomas/log4go"
+	"github.com/lorock/single-sign-on/model"
 )
 
 type ALiYunSmsClient struct {
-	Request   *model.ALiYunCommunicationRequest
+	Request    *model.ALiYunCommunicationRequest
 	GatewayUrl string
-	Client    *http.Client
+	Client     *http.Client
 }
 
 func NewALiYunSmsClient(gatewayUrl string) *ALiYunSmsClient {
@@ -22,37 +23,34 @@ func NewALiYunSmsClient(gatewayUrl string) *ALiYunSmsClient {
 	return smsClient
 }
 
-func (smsClient *ALiYunSmsClient) Execute(accessKeyId, accessKeySecret, mobile, signName, templateCode, templateParam string) (err error){
+func (smsClient *ALiYunSmsClient) Execute(accessKeyId, accessKeySecret, mobile, signName, templateCode, templateParam string) (err error) {
 	var endpoint string
 	if err = smsClient.Request.SetParamsValue(accessKeyId, mobile, signName, templateCode, templateParam); err != nil {
-		return 
+		return
 	}
 	if endpoint, err = smsClient.Request.BuildSmsRequestEndpoint(accessKeySecret, smsClient.GatewayUrl); err != nil {
-		return 
+		return
 	}
 
-	request, _ := http.NewRequest("GET",endpoint, nil)
+	request, _ := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
-		return 
-	}		
+		return
+	}
 	response, _ := smsClient.Client.Do(request)
 	if err != nil {
-		return 
-	}		
+		return
+	}
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return 
-	}	
-	defer response.Body.Close()	
+		return
+	}
+	defer response.Body.Close()
 
-	var result map[string] interface{}
+	var result map[string]interface{}
 	err = json.Unmarshal(body, &result)
 	for key, value := range result {
-		 l4g.Debug("key:", key, " value:",value)
+		l4g.Debug("key:", key, " value:", value)
 	}
 
-	return 
+	return
 }
-
-
-

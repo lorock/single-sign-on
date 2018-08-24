@@ -13,9 +13,9 @@ import (
 	throttled "gopkg.in/throttled/throttled.v2"
 	"gopkg.in/throttled/throttled.v2/store/memstore"
 
-	"github.com/KenmyZhang/single-sign-on/model"
-	"github.com/KenmyZhang/single-sign-on/sqlStore"
-	"github.com/KenmyZhang/single-sign-on/utils"
+	"github.com/lorock/single-sign-on/model"
+	"github.com/lorock/single-sign-on/sqlStore"
+	"github.com/lorock/single-sign-on/utils"
 )
 
 type Server struct {

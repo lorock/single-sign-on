@@ -3,8 +3,8 @@ package app
 import (
 	"net/http"
 
-	"github.com/KenmyZhang/single-sign-on/model"
-	"github.com/KenmyZhang/single-sign-on/utils"
+	"github.com/lorock/single-sign-on/model"
+	"github.com/lorock/single-sign-on/utils"
 )
 
 func checkUserPassword(user *model.User, password string) *model.AppError {

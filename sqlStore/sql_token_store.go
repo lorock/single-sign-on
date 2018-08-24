@@ -6,7 +6,7 @@ import (
 
 	l4g "github.com/alecthomas/log4go"
 
-	"github.com/KenmyZhang/single-sign-on/model"
+	"github.com/lorock/single-sign-on/model"
 )
 
 type SqlTokenStore struct {
@@ -136,7 +136,7 @@ func (s SqlTokenStore) GetTokenCountByExtra(extra string) StoreChannel {
 			FROM 
 				Tokens 
 			WHERE 
-				Extra = :Extra`, map[string]interface{}{"Extra": extra}) 
+				Extra = :Extra`, map[string]interface{}{"Extra": extra})
 		if err != nil {
 			result.Err = model.NewAppError("SqlTokenStore.GetTokenCountByExtra", "store.sql_token.get_token_count_by_extra.app_error", nil, err.Error(), http.StatusInternalServerError)
 		}

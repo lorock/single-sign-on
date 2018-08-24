@@ -3,8 +3,8 @@ package sqlStore
 import (
 	"time"
 
-	"github.com/KenmyZhang/single-sign-on/model"
 	l4g "github.com/alecthomas/log4go"
+	"github.com/lorock/single-sign-on/model"
 )
 
 type StoreResult struct {
@@ -53,7 +53,7 @@ type TokenStore interface {
 	Delete(token string) StoreChannel
 	GetByToken(token string) StoreChannel
 	GetByExtra(extra string) StoreChannel
-	GetTokenCountByExtra(extra string) StoreChannel	
+	GetTokenCountByExtra(extra string) StoreChannel
 	Cleanup()
 }
 

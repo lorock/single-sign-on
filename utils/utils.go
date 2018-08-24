@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/KenmyZhang/single-sign-on/model"
+	"github.com/lorock/single-sign-on/model"
 )
 
 func StringArrayIntersection(arr1, arr2 []string) []string {

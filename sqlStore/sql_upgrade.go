@@ -6,8 +6,8 @@ import (
 
 	l4g "github.com/alecthomas/log4go"
 
-	"github.com/KenmyZhang/single-sign-on/model"
-	"github.com/KenmyZhang/single-sign-on/utils"
+	"github.com/lorock/single-sign-on/model"
+	"github.com/lorock/single-sign-on/utils"
 )
 
 const (
@@ -36,7 +36,7 @@ func UpgradeDatabase(sqlStore SqlStore) {
 
 		l4g.Info(utils.T("store.sql.schema_set.info"), model.CurrentVersion)
 	}
-	
+
 	if sqlStore.GetCurrentSchemaVersion() != model.CurrentVersion {
 		l4g.Critical(utils.T("store.sql.schema_version.critical"), sqlStore.GetCurrentSchemaVersion(), OLDEST_SUPPORTED_VERSION, model.CurrentVersion, OLDEST_SUPPORTED_VERSION)
 		time.Sleep(time.Second)

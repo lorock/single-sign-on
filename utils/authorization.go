@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"github.com/KenmyZhang/single-sign-on/model"
+	"github.com/lorock/single-sign-on/model"
 )
 
 func SetDefaultRolesBasedOnConfig() {

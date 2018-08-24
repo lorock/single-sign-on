@@ -3,7 +3,7 @@ package store
 import (
 	mgo "gopkg.in/mgo.v2"
 
-	"github.com/KenmyZhang/single-sign-on/model"
+	"github.com/lorock/single-sign-on/model"
 )
 
 type MgoSystemStore struct {

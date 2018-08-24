@@ -10,7 +10,7 @@ import (
 	l4g "github.com/alecthomas/log4go"
 	"github.com/nicksnyder/go-i18n/i18n"
 
-	"github.com/KenmyZhang/single-sign-on/model"
+	"github.com/lorock/single-sign-on/model"
 )
 
 var T i18n.TranslateFunc

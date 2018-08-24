@@ -1,23 +1,24 @@
 package api
 
 import (
-	"net/http"
-	"regexp"		
-	"strconv"
 	"fmt"
+	"net/http"
+	"regexp"
+	"strconv"
+
 	l4g "github.com/alecthomas/log4go"
 
-	"github.com/KenmyZhang/single-sign-on/app"
-	"github.com/KenmyZhang/single-sign-on/model"
-	"github.com/KenmyZhang/single-sign-on/utils"
-	"github.com/KenmyZhang/single-sign-on/sqlStore"
+	"github.com/lorock/single-sign-on/app"
+	"github.com/lorock/single-sign-on/model"
+	"github.com/lorock/single-sign-on/sqlStore"
+	"github.com/lorock/single-sign-on/utils"
 )
 
 func InitUser() {
 	l4g.Debug(utils.T("api.user.init.debug"))
 	BaseRoutes.User.Handle("", ApiCustomClaimsRequired(getUser)).Methods("GET")
 	BaseRoutes.User.Handle("/image", ApiHandler(getProfileImage)).Methods("GET")
-	BaseRoutes.User.Handle("/image", ApiCustomClaimsRequired(setProfileImage)).Methods("POST")		
+	BaseRoutes.User.Handle("/image", ApiCustomClaimsRequired(setProfileImage)).Methods("POST")
 	BaseRoutes.Users.Handle("/login", ApiHandler(login)).Methods("POST")
 	BaseRoutes.Users.Handle("/logout", ApiHandler(logout)).Methods("POST")
 	BaseRoutes.Users.Handle("/sendsms", ApiHandler(sendSmsCode)).Methods("POST")
@@ -61,7 +62,6 @@ func getUser(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
-
 
 func getProfileImage(c *Context, w http.ResponseWriter, r *http.Request) {
 	c.RequireUserId()
@@ -176,7 +176,7 @@ func logout(c *Context, w http.ResponseWriter, r *http.Request) {
 
 func sendSmsCode(c *Context, w http.ResponseWriter, r *http.Request) {
 	props := model.MapFromJson(r.Body)
-	mobile  := props["mobile"]	
+	mobile := props["mobile"]
 	if len(mobile) == 0 {
 		c.SetInvalidParam("mobile")
 		return
@@ -189,31 +189,30 @@ func sendSmsCode(c *Context, w http.ResponseWriter, r *http.Request) {
 	ReturnStatusOK(w)
 }
 
-
 func signupByMobile(c *Context, w http.ResponseWriter, r *http.Request) {
 	props := model.MapFromJson(r.Body)
 
-	mobile  := props["mobile"]	
+	mobile := props["mobile"]
 	if len(mobile) == 0 {
 		c.SetInvalidParam("mobile")
 		return
 	}
 
-	username := props["username"]	
+	username := props["username"]
 	if username == "" {
 		c.SetInvalidParam("username")
-		return		
+		return
 	}
 
 	password := props["password"]
 	if password == "" {
 		c.SetInvalidParam("password")
-		return	
+		return
 	}
 
 	nickname := props["nickname"]
 	if nickname == "" {
-		nickname = username	
+		nickname = username
 	}
 
 	if exist := app.IsMobileExist(mobile); exist == true {
@@ -227,7 +226,7 @@ func signupByMobile(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := &model.User{Username:username, Nickname:nickname, Mobile:mobile, Password:password, AllowMarketing: true}
+	user := &model.User{Username: username, Nickname: nickname, Mobile: mobile, Password: password, AllowMarketing: true}
 	_, err := app.CreateUserFromEmailOrMobile(user)
 	if err != nil {
 		c.Err = err
@@ -253,7 +252,7 @@ func signupByMobile(c *Context, w http.ResponseWriter, r *http.Request) {
 
 func loginByMobile(c *Context, w http.ResponseWriter, r *http.Request) {
 	props := model.MapFromJson(r.Body)
-	mobile  := props["mobile"]
+	mobile := props["mobile"]
 	verificationCode := props["verification_code"]
 	password := props["password"]
 	deviceId := props["device_id"]
@@ -299,13 +298,13 @@ func loginByMobile(c *Context, w http.ResponseWriter, r *http.Request) {
 
 func isMobileExist(c *Context, w http.ResponseWriter, r *http.Request) {
 	var mobileChar = regexp.MustCompile(`^[0-9]+$`)
-    props := model.MapFromJson(r.Body)
-    mobile  := props["mobile"]
-    if mobile == "" || !mobileChar.MatchString(mobile) {
-        c.SetInvalidParam("mobile")
-        return
-    }    	
-	
+	props := model.MapFromJson(r.Body)
+	mobile := props["mobile"]
+	if mobile == "" || !mobileChar.MatchString(mobile) {
+		c.SetInvalidParam("mobile")
+		return
+	}
+
 	m := make(map[string]string)
 
 	if exist := app.IsMobileExist(mobile); exist != true {
@@ -318,33 +317,33 @@ func isMobileExist(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func resetPasswordByMobile(c *Context, w http.ResponseWriter, r *http.Request) {
-    props := model.MapFromJson(r.Body)
-    mobile  := props["mobile"]
-    verificationCode := props["verification_code"]
-    newPassword := props["new_password"]
-    if mobile == "" {
-            c.SetInvalidParam("mobile")
-            return
-    }
-    if verificationCode == "" {
-            c.SetInvalidParam("verification code")
-            return
-    }
+	props := model.MapFromJson(r.Body)
+	mobile := props["mobile"]
+	verificationCode := props["verification_code"]
+	newPassword := props["new_password"]
+	if mobile == "" {
+		c.SetInvalidParam("mobile")
+		return
+	}
+	if verificationCode == "" {
+		c.SetInvalidParam("verification code")
+		return
+	}
 
-    var err *model.AppError
-    var user *model.User
-    if user, err = app.GetUserByMobile(mobile); err != nil {
-            c.Err = err
-            return
-    }
-    if err = app.VerifiedCode(r, "", mobile, verificationCode); err != nil {
-            c.Err = err
-            return
-    }
-    if err := app.UpdatePassword(user, newPassword); err != nil {
-            c.Err = err
-            return
-    }
+	var err *model.AppError
+	var user *model.User
+	if user, err = app.GetUserByMobile(mobile); err != nil {
+		c.Err = err
+		return
+	}
+	if err = app.VerifiedCode(r, "", mobile, verificationCode); err != nil {
+		c.Err = err
+		return
+	}
+	if err := app.UpdatePassword(user, newPassword); err != nil {
+		c.Err = err
+		return
+	}
 
 	ReturnStatusOK(w)
 }
@@ -371,27 +370,27 @@ func sendVerificationCodeEmail(c *Context, w http.ResponseWriter, r *http.Reques
 func signupByEmail(c *Context, w http.ResponseWriter, r *http.Request) {
 	props := model.MapFromJson(r.Body)
 
-	email := props["email"]	
+	email := props["email"]
 	if len(email) == 0 {
 		c.SetInvalidParam("email")
 		return
 	}
 
-	username := props["username"]	
+	username := props["username"]
 	if username == "" {
 		c.SetInvalidParam("username")
-		return		
+		return
 	}
 
 	password := props["password"]
 	if password == "" {
 		c.SetInvalidParam("password")
-		return	
+		return
 	}
 
 	nickname := props["nickname"]
 	if nickname == "" {
-		nickname = username	
+		nickname = username
 	}
 
 	if exist := app.IsEmailExist(email); exist == true {
@@ -405,7 +404,7 @@ func signupByEmail(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := &model.User{Username:username, Nickname:nickname, Email:email, Password:password, AllowMarketing: true}
+	user := &model.User{Username: username, Nickname: nickname, Email: email, Password: password, AllowMarketing: true}
 	_, err := app.CreateUserFromEmailOrMobile(user)
 	if err != nil {
 		c.Err = err
@@ -431,12 +430,12 @@ func signupByEmail(c *Context, w http.ResponseWriter, r *http.Request) {
 
 func isEmailExist(c *Context, w http.ResponseWriter, r *http.Request) {
 	var emailChar = regexp.MustCompile(`^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$`)
-    props := model.MapFromJson(r.Body)
-    email  := props["email"]
-    if email == "" || !emailChar.MatchString(email) {
-            c.SetInvalidParam("email")
-            return
-    }    	
+	props := model.MapFromJson(r.Body)
+	email := props["email"]
+	if email == "" || !emailChar.MatchString(email) {
+		c.SetInvalidParam("email")
+		return
+	}
 
 	m := make(map[string]string)
 
@@ -450,33 +449,33 @@ func isEmailExist(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func resetPasswordByEmail(c *Context, w http.ResponseWriter, r *http.Request) {
-    props := model.MapFromJson(r.Body)
-    email  := props["email"]
-    verificationCode := props["verification_code"]
-    newPassword := props["new_password"]
-    if email == "" {
-        c.SetInvalidParam("email")
-        return
-    }
-    if verificationCode == "" {
-        c.SetInvalidParam("verification code")
-        return
-    }
+	props := model.MapFromJson(r.Body)
+	email := props["email"]
+	verificationCode := props["verification_code"]
+	newPassword := props["new_password"]
+	if email == "" {
+		c.SetInvalidParam("email")
+		return
+	}
+	if verificationCode == "" {
+		c.SetInvalidParam("verification code")
+		return
+	}
 
-    var err *model.AppError
-    var user *model.User
-    if user, err = app.GetUserByEmail(email); err != nil {
-        c.Err = err
-        return
-    }
-    if err = app.VerifiedCode(r, email, "", verificationCode); err != nil {
-        c.Err = err
-        return
-    }
-    if err := app.UpdatePassword(user, newPassword); err != nil {
-        c.Err = err
-        return
-    }
+	var err *model.AppError
+	var user *model.User
+	if user, err = app.GetUserByEmail(email); err != nil {
+		c.Err = err
+		return
+	}
+	if err = app.VerifiedCode(r, email, "", verificationCode); err != nil {
+		c.Err = err
+		return
+	}
+	if err := app.UpdatePassword(user, newPassword); err != nil {
+		c.Err = err
+		return
+	}
 
 	ReturnStatusOK(w)
 }
@@ -503,4 +502,3 @@ func searchUsers(c *Context, w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(model.UserListToJson(profiles)))
 	}
 }
-

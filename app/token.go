@@ -1,10 +1,10 @@
 package app
 
 import (
-	"github.com/KenmyZhang/single-sign-on/model"
 	"net/http"
-)
 
+	"github.com/lorock/single-sign-on/model"
+)
 
 func GetTokenByExtra(extra string) (*model.Token, *model.AppError) {
 	if result := <-Srv.SqlStore.Token().GetByExtra(extra); result.Err != nil {

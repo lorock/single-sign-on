@@ -12,10 +12,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/mattermost/gorp"
-	"github.com/KenmyZhang/single-sign-on/model"
-	"github.com/KenmyZhang/single-sign-on/utils"
 	l4g "github.com/alecthomas/log4go"
+	"github.com/lorock/single-sign-on/model"
+	"github.com/lorock/single-sign-on/utils"
+	"github.com/mattermost/gorp"
 )
 
 const (
@@ -62,7 +62,7 @@ type SqlSupplierResult struct {
 type SqlSupplierOldStores struct {
 	user   UserStore
 	system SystemStore
-	token TokenStore
+	token  TokenStore
 }
 
 type SqlSupplier struct {

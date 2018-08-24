@@ -10,9 +10,9 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	goi18n "github.com/nicksnyder/go-i18n/i18n"
 
-	"github.com/KenmyZhang/single-sign-on/app"
-	"github.com/KenmyZhang/single-sign-on/model"
-	"github.com/KenmyZhang/single-sign-on/utils"
+	"github.com/lorock/single-sign-on/app"
+	"github.com/lorock/single-sign-on/model"
+	"github.com/lorock/single-sign-on/utils"
 )
 
 type Context struct {

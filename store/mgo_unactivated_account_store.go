@@ -4,8 +4,9 @@ import (
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
-	"github.com/KenmyZhang/single-sign-on/model"
 	"net/http"
+
+	"github.com/lorock/single-sign-on/model"
 )
 
 type MgoUnactivatedAccountStore struct {
@@ -65,7 +66,7 @@ func (s MgoUnactivatedAccountStore) Get(doctorId string) StoreChannel {
 
 		if err := UnactivatedAccountC(ms).Find(bson.M{"doctorId": doctorId}).One(&unactivatedAccount); err != nil {
 			result.Err = model.NewAppError("MgoUnactivatedAccountStore.Get",
-				"store.mgo_unactivated_account_store.get.app_error", nil, "doctorId=" + doctorId, http.StatusNotFound,
+				"store.mgo_unactivated_account_store.get.app_error", nil, "doctorId="+doctorId, http.StatusNotFound,
 			)
 		} else {
 			result.Data = &unactivatedAccount
@@ -78,4 +79,3 @@ func (s MgoUnactivatedAccountStore) Get(doctorId string) StoreChannel {
 
 	return storeChannel
 }
-

@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
+	_ "github.com/lorock/single-sign-on/model/wechat"
 	"github.com/spf13/cobra"
-	_"github.com/KenmyZhang/single-sign-on/model/wechat"
 )
 
 func main() {

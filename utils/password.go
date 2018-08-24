@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/KenmyZhang/single-sign-on/model"
+	"github.com/lorock/single-sign-on/model"
 )
 
 func IsPasswordValid(password string) *model.AppError {
@@ -43,7 +43,7 @@ func IsPasswordValid(password string) *model.AppError {
 		id = id + "_symbol"
 	}
 
-	min := *Cfg.PasswordSettings.MinimumLength	
+	min := *Cfg.PasswordSettings.MinimumLength
 
 	if isError {
 		return model.NewAppError("User.IsValid",

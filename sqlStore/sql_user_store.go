@@ -3,19 +3,19 @@ package sqlStore
 import (
 	"database/sql"
 	"fmt"
-	"regexp"	
 	"net/http"
+	"regexp"
 	"strings"
 
-	"github.com/KenmyZhang/single-sign-on/model"
-	"github.com/KenmyZhang/single-sign-on/utils"
+	"github.com/lorock/single-sign-on/model"
+	"github.com/lorock/single-sign-on/utils"
 )
 
 const (
 	MISSING_ACCOUNT_ERROR               = "store.sql_user.missing_account.const"
 	MISSING_AUTH_ACCOUNT_ERROR          = "store.sql_user.get_by_auth.missing_account.app_error"
 	USER_SEARCH_TYPE_NAMES_NO_FULL_NAME = "Username, Nickname"
-	USER_SEARCH_OPTION_ALLOW_INACTIVE   = "allow_inactive"	
+	USER_SEARCH_OPTION_ALLOW_INACTIVE   = "allow_inactive"
 	USER_SEARCH_TYPE_NAMES              = "Username, FirstName, LastName, Nickname"
 	USER_SEARCH_TYPE_ALL_NO_FULL_NAME   = "Username, Nickname, Email"
 	USER_SEARCH_TYPE_ALL                = "Username, FirstName, LastName, Nickname, Email, Mobile"
@@ -310,7 +310,7 @@ func (us SqlUserStore) GetForLogin(loginId string, allowSignInWithUsername, allo
 			"LoginId":                 loginId,
 			"AllowSignInWithUsername": allowSignInWithUsername,
 			"AllowSignInWithEmail":    allowSignInWithEmail,
-			"AllowSignInWithMobile": allowSignInWithMobile,
+			"AllowSignInWithMobile":   allowSignInWithMobile,
 			"WeixinEnabled":           weixinEnabled,
 		}
 
@@ -477,18 +477,17 @@ func (us SqlUserStore) performSearch(searchQuery string, term string, options ma
 	return result
 }
 
-
 var mobileChar = regexp.MustCompile(`^[0-9]+$`)
 
 func (us SqlUserStore) GetProfileByMobile(mobile string) StoreChannel {
 	storeChannel := make(StoreChannel, 1)
 	result := StoreResult{}
-	
+
 	if !mobileChar.MatchString(mobile) {
 		result.Err = model.NewLocAppError("SqlUserStore.GetProfileByMobile", "store.sql_user.get_profile_by_mobile.invalid.app_error", nil, "Mobile="+mobile)
 		storeChannel <- result
 		close(storeChannel)
-		return storeChannel	
+		return storeChannel
 	}
 
 	go func() {
@@ -507,7 +506,7 @@ func (us SqlUserStore) GetProfileByMobile(mobile string) StoreChannel {
 		close(storeChannel)
 	}()
 
-	return storeChannel	
+	return storeChannel
 }
 
 func (us SqlUserStore) UpdatePassword(userId, hashedPassword string) StoreChannel {

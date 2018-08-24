@@ -10,7 +10,7 @@ import (
 	"time"
 
 	l4g "github.com/alecthomas/log4go"
-	"github.com/KenmyZhang/single-sign-on/model"
+	"github.com/lorock/single-sign-on/model"
 )
 
 func encodeRFC2047Word(s string) string {

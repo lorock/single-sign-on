@@ -1,8 +1,9 @@
 package einterfaces
 
 import (
-	"github.com/KenmyZhang/single-sign-on/model"
 	"io"
+
+	"github.com/lorock/single-sign-on/model"
 )
 
 type OauthProvider interface {
